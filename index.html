@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0095ff" />
+  <title>EWA Personal - Belajar Bahasa Inggris</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --primary: #0095ff;
+      --primary-dark: #0077cc;
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+
+    /* Header */
+    .header { background: var(--primary); color: white; padding: 16px 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 12px rgba(0,149,255,0.2); }
+    .header h1 { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+    .header p { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+
+    .container { padding: 20px; }
+    .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+    .title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .subtitle { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+    /* Buttons */
+    .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+    .btn-sm { padding: 8px 14px; font-size: 13px; width: auto; border-radius: 8px; }
+    .btn-success { background: var(--success); }
+
+    /* Onboarding Quiz */
+    .option-btn { width: 100%; text-align: left; background: #f8fafc; border: 2px solid var(--border); padding: 14px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.15s; }
+    .option-btn:hover, .option-btn.selected { border-color: var(--primary); background: #eff6ff; color: var(--primary-dark); }
+
+    /* Result Box */
+    .word-count-box { background: #f1f5f9; border-radius: 14px; padding: 20px; text-align: center; margin: 16px 0; }
+    .word-count-box h2 { font-size: 34px; font-weight: 800; color: var(--text); }
+    .level-bar { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 8px; position: relative; }
+    .level-bar::before { content: ""; position: absolute; top: 10px; left: 10px; right: 10px; height: 6px; background: #e2e8f0; z-index: 1; border-radius: 4px; }
+    .level-dot { width: 24px; height: 24px; border-radius: 50%; background: #cbd5e1; z-index: 2; border: 4px solid white; box-shadow: 0 0 0 2px #cbd5e1; }
+    .level-dot.active { background: var(--primary); box-shadow: 0 0 0 2px var(--primary); transform: scale(1.15); }
+    .level-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); text-align: center; margin-bottom: 16px; }
+
+    /* Chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip { padding: 8px 14px; border-radius: 20px; background: #f1f5f9; font-size: 13px; cursor: pointer; border: 1px solid var(--border); }
+    .chip.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 600; }
+
+    /* Bottom Nav */
+    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; border-top: 1px solid var(--border); padding: 8px 0; z-index: 20; }
+    .nav-item { flex: 1; text-align: center; font-size: 11px; color: var(--muted); cursor: pointer; padding: 4px; }
+    .nav-item.active { color: var(--primary); font-weight: 700; }
+    .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+    /* Flashcards */
+    .flashcard { min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer; background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border: 2px solid #bae6fd; }
+    .fc-word { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin-bottom: 8px; }
+    .fc-phonetic { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+    .fc-meaning { font-size: 20px; font-weight: 700; color: var(--success); margin-top: 10px; }
+    .fc-example { font-size: 14px; color: var(--text); font-style: italic; margin-top: 8px; }
+
+    /* Interactive Reader */
+    .word-span { cursor: pointer; padding: 2px 3px; border-radius: 4px; transition: 0.15s; display: inline-block; }
+    .word-span:hover { background: #fef08a; }
+    .translation-popup { background: #1e293b; color: white; padding: 12px 16px; border-radius: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Stats */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-box { background: #f8fafc; padding: 14px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--primary); }
+    .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>ewa personal</h1>
+    <p id="header-status">Mode Belajar Pribadi • Siap Offline</p>
+  </div>
+
+  <!-- SECTION 1: ONBOARDING / TES KOSAKATA -->
+  <div id="view-onboarding" class="container">
+    <div id="step-quiz" class="card">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="font-size:12px; font-weight:700; color:var(--primary);">TES KOSAKATA</span>
+        <span id="quiz-progress" style="font-size:12px; color:var(--muted);">1 / 10</span>
+      </div>
+      <div class="title" id="quiz-question">Apa arti kata "Accurate"?</div>
+      <div id="quiz-options"></div>
+    </div>
+
+    <div id="step-result" class="hidden">
+      <div class="card">
+        <div style="text-align:center;" class="subtitle">Hasil tes kata:</div>
+        <div class="word-count-box">
+          <h2 id="res-word-count">4233 kata</h2>
+        </div>
+
+        <div class="level-bar">
+          <div class="level-dot" id="dot-1"></div>
+          <div class="level-dot" id="dot-2"></div>
+          <div class="level-dot" id="dot-3"></div>
+          <div class="level-dot" id="dot-4"></div>
+          <div class="level-dot" id="dot-5"></div>
+        </div>
+        <div class="level-labels">
+          <span>100<br>Beginner</span>
+          <span>1.000<br>Elementary</span>
+          <span>2.500<br>Intermed.</span>
+          <span>5.000<br>Upper-Int</span>
+          <span>10.000<br>Advanced</span>
+        </div>
+
+        <div style="background:#f8fafc; padding:14px; border-radius:12px; margin-bottom:16px;">
+          <div class="title" style="font-size:16px;">Perkiraan level kamu: <span id="res-level" style="color:var(--primary);">Intermediate</span></div>
+          <p class="subtitle" id="res-desc">Di level berikutnya, kamu akan bisa mengekspresikan pendapatmu dengan lebih jelas dan mengikuti percakapan berbagai topik.</p>
+        </div>
+
+        <div class="title" style="font-size:15px;">Pilih Target Belajar:</div>
+        <div class="chips" id="target-chips">
+          <div class="chip active" onclick="toggleChip(this)">Lancar bicara</div>
+          <div class="chip" onclick="toggleChip(this)">Nonton film tanpa subtitle</div>
+          <div class="chip active" onclick="toggleChip(this)">Membaca buku Inggris</div>
+          <div class="chip" onclick="toggleChip(this)">Pede dengan penutur asli</div>
+        </div>
+
+        <div class="title" style="font-size:15px; margin-top:16px;">Preferensi Metode:</div>
+        <div class="chips" id="method-chips">
+          <div class="chip active" onclick="toggleChip(this)">Hafalan kata</div>
+          <div class="chip active" onclick="toggleChip(this)">Membaca cerita</div>
+          <div class="chip" onclick="toggleChip(this)">Percakapan & Idiom</div>
+        </div>
+
+        <button class="btn" style="margin-top:20px;" onclick="finishOnboarding()">Mulai Program Belajar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: MAIN APP -->
+  <div id="view-app" class="container hidden">
+    
+    <!-- TAB 1: DASHBOARD -->
+    <div id="tab-home">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="subtitle">Level Saat Ini</div>
+            <div class="title" id="dash-level" style="color:var(--primary); font-size:20px;">Intermediate</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="subtitle">Estimasi Kosakata</div>
+            <div class="title" id="dash-words">4.233 kata</div>
+          </div>
+        </div>
+        <hr style="border:none; border-top:1px solid var(--border); margin:12px 0;">
+        <div class="subtitle"><strong>Target:</strong> <span id="dash-targets">-</span></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="stat-mastered">0</div>
+          <div class="stat-lbl">Kata Baru Dihafal</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-streak">1 Hari</div>
+          <div class="stat-lbl">Runtunan Belajar</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Isi Paket Belajar Harian (10-15 Menit)</div>
+        <p class="subtitle" style="margin-bottom:12px;">Gunakan metode <strong>Edutainment & Shadow Learning</strong>: dengarkan audio, baca konteks, dan hafalkan tanpa bosan.</p>
+        <button class="btn" onclick="switchTab('cards')">Mulai Hafalan Kata Hari Ini</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: FLASHCARDS -->
+    <div id="tab-cards" class="hidden">
+      <div class="card flashcard" onclick="flipCard()">
+        <span style="font-size:11px; color:var(--muted); margin-bottom:10px;">Ketuk kartu untuk melihat arti</span>
+        <div class="fc-word" id="fc-word">Reluctant</div>
+        <div class="fc-phonetic" id="fc-phonetic">/rɪˈlʌktənt/</div>
+        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); speakWord(currentCard.word)">🔊 Dengarkan Audio</button>
+        
+        <div id="fc-back" class="hidden">
+          <div class="fc-meaning" id="fc-meaning">Enggan / Ragu-ragu</div>
+          <div class="fc-example" id="fc-example">"She was reluctant to admit she was wrong."</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-outline" onclick="nextCard(false)">Belum Hafal</button>
+        <button class="btn btn-success" onclick="nextCard(true)">✓ Sudah Hafal</button>
+      </div>
+    </div>
+
+    <!-- TAB 3: BUKU ADAPTASI (SHADOW READING) -->
+    <div id="tab-read" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div class="title" style="margin:0;">Buku Adaptasi: The Coffee Shop</div>
+          <button class="btn btn-sm" onclick="speakWord(storyText)">🔊 Baca Semua</button>
+        </div>
+        <p class="subtitle" style="margin-bottom:12px;">Klik kata mana saja di bawah untuk mendengar cara baca dan melihat artinya:</p>
+        
+        <div id="story-container" style="font-size:17px; line-height:1.8; background:#f8fafc; padding:14px; border-radius:12px;"></div>
+
+        <div id="word-popup" class="translation-popup hidden">
+          <div>
+            <div style="font-weight:700; font-size:16px;" id="pop-en">Word</div>
+            <div style="font-size:13px; color:#94a3b8;" id="pop-id">Arti kata</div>
+          </div>
+          <button class="btn btn-sm" onclick="speakWord(document.getElementById('pop-en').innerText)">🔊 Suara</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: PROFIL & BACKUP OFFLINE -->
+    <div id="tab-profile" class="hidden">
+      <div class="card">
+        <div class="title">Pengaturan & Backup Data</div>
+        <p class="subtitle" style="margin-bottom:16px;">Semua data tersimpan otomatis di memori perangkat Anda (Offline). Anda bisa mencadangkan progres ke file kapan saja.</p>
+        
+        <button class="btn btn-outline" style="margin-bottom:10px;" onclick="exportData()">⬇️ Unduh Backup Progres (JSON)</button>
+        <button class="btn btn-outline" style="margin-bottom:20px;" onclick="document.getElementById('import-file').click()">⬆️ Pulihkan Data dari File</button>
+        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)" />
+        
+        <button class="btn" style="background:#ef4444;" onclick="resetAll()">Ulangi Tes Level / Reset Data</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div id="bottom-nav" class="nav hidden">
+    <div class="nav-item active" onclick="switchTab('home', this)"><span class="nav-icon">🏠</span>Beranda</div>
+    <div class="nav-item" onclick="switchTab('cards', this)"><span class="nav-icon">🗂️</span>Kosakata</div>
+    <div class="nav-item" onclick="switchTab('read', this)"><span class="nav-icon">📖</span>Bacaan</div>
+    <div class="nav-item" onclick="switchTab('profile', this)"><span class="nav-icon">⚙️</span>Data</div>
+  </div>
+
+  <script>
+    // --- DATABASE MATERI BAWAAN (OFFLINE READY) ---
+    const quizData = [
+      { q: 'Apa arti kata "Determine"?', opts: ['Menentukan', 'Menghancurkan', 'Melupakan', 'Menyembunyikan'], ans: 0, pts: 400 },
+      { q: 'Apa arti kata "Substantial"?', opts: ['Sangat kecil', 'Besar / Signifikan', 'Sementara', 'Berbahaya'], ans: 1, pts: 600 },
+      { q: 'Apa arti kata "Inevitable"?', opts: ['Tidak terelakkan', 'Tidak terlihat', 'Sangat mudah', 'Membosankan'], ans: 0, pts: 750 },
+      { q: 'Apa arti kata "Ambiguous"?', opts: ['Sangat jelas', 'Bermakna ganda / Ragu', 'Ambisius', 'Ramah'], ans: 1, pts: 850 },
+      { q: 'Apa arti kata "Meticulous"?', opts: ['Ceroboh', 'Sangat teliti', 'Cepat marah', 'Pemalu'], ans: 1, pts: 950 },
+      { q: 'Apa arti kata "Ephemeral"?', opts: ['Abadi', 'Berlangsung singkat', 'Sangat berat', 'Beracun'], ans: 1, pts: 1200 }
+    ];
+
+    const flashcardsDB = [
+      { word: "Reluctant", phonetic: "/rɪˈlʌktənt/", meaning: "Enggan / Ragu-ragu", example: "He was reluctant to ask for help." },
+      { word: "Flawless", phonetic: "/ˈflɔːləs/", meaning: "Sempurna tanpa cacat", example: "Her English pronunciation is flawless." },
+      { word: "Overwhelm", phonetic: "/ˌoʊvərˈwelm/", meaning: "Kewalahan / Meluap", example: "Don't let the workload overwhelm you." },
+      { word: "Genuine", phonetic: "/ˈdʒenjuɪn/", meaning: "Asli / Tulus", example: "She showed genuine interest in learning." },
+      { word: "Postpone", phonetic: "/poʊˈspoʊn/", meaning: "Menunda", example: "We had to postpone the meeting until tomorrow." },
+      { word: "Breakthrough", phonetic: "/ˈbreɪkθruː/", meaning: "Terobosan besar", example: "Scientists made a major breakthrough." }
+    ];
+
+    const storyText = "Yesterday morning, I decided to visit a quiet coffee shop downtown. Although the weather was gloomy, the aroma of freshly roasted beans instantly lifted my mood.";
+    const dictionary = {
+      "yesterday": "kemarin", "morning": "pagi", "decided": "memutuskan", "visit": "mengunjungi",
+      "quiet": "tenang / sepi", "coffee": "kopi", "shop": "kedai / toko", "downtown": "pusat kota",
+      "although": "meskipun", "weather": "cuaca", "gloomy": "mendung / suram", "aroma": "aroma / wangi",
+      "freshly": "baru saja", "roasted": "dipanggang", "beans": "biji", "instantly": "seketika",
+      "lifted": "mengangkat / memperbaiki", "mood": "suasana hati"
+    };
+
+    // --- STATE APLIKASI ---
+    let state = JSON.parse(localStorage.getItem('ewa_personal_state')) || {
+      onboarded: false,
+      wordCount: 0,
+      level: 'Beginner',
+      targets: [],
+      masteredWords: [],
+      cardIndex: 0
+    };
+
+    let currentQuizIdx = 0;
+    let quizScore = 500; // Base score
+    let currentCard = flashcardsDB[0];
+
+    // --- INISIALISASI ---
+    window.onload = () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+      if (state.onboarded) {
+        showMainApp();
+      } else {
+        renderQuiz();
+      }
+    };
+
+    function saveState() {
+      localStorage.setItem('ewa_personal_state', JSON.stringify(state));
+    }
+
+    // --- LOGIKA ONBOARDING & TES ---
+    function renderQuiz() {
+      const item = quizData[currentQuizIdx];
+      document.getElementById('quiz-progress').innerText = `${currentQuizIdx + 1} / ${quizData.length}`;
+      document.getElementById('quiz-question').innerText = item.q;
+      const optContainer = document.getElementById('quiz-options');
+      optContainer.innerHTML = '';
+
+      item.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(idx === item.ans, item.pts);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(isCorrect, pts) {
+      if (isCorrect) quizScore += pts;
+      currentQuizIdx++;
+      if (currentQuizIdx < quizData.length) {
+        renderQuiz();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      document.getElementById('step-quiz').classList.add('hidden');
+      document.getElementById('step-result').classList.remove('hidden');
+
+      state.wordCount = quizScore;
+      let dotIdx = 1;
+      if (quizScore >= 4500) { state.level = 'Advanced'; dotIdx = 5; }
+      else if (quizScore >= 3500) { state.level = 'Upper Intermediate'; dotIdx = 4; }
+      else if (quizScore >= 2000) { state.level = 'Intermediate'; dotIdx = 3; }
+      else if (quizScore >= 1000) { state.level = 'Elementary'; dotIdx = 2; }
+      else { state.level = 'Beginner'; dotIdx = 1; }
+
+      document.getElementById('res-word-count').innerText = `${state.wordCount} kata`;
+      document.getElementById('res-level').innerText = state.level;
+      for (let i = 1; i <= dotIdx; i++) {
+        document.getElementById(`dot-${i}`).classList.add('active');
+      }
+    }
+
+    function toggleChip(el) {
+      el.classList.toggle('active');
+    }
+
+    function finishOnboarding() {
+      const activeTargets = Array.from(document.querySelectorAll('#target-chips .chip.active')).map(c => c.innerText);
+      state.targets = activeTargets.length ? activeTargets : ['Lancar membaca & bicara'];
+      state.onboarded = true;
+      saveState();
+      showMainApp();
+    }
+
+    // --- LOGIKA APLIKASI UTAMA ---
+    function showMainApp() {
+      document.getElementById('view-onboarding').classList.add('hidden');
+      document.getElementById('view-app').classList.remove('hidden');
+      document.getElementById('bottom-nav').classList.remove('hidden');
+
+      document.getElementById('dash-level').innerText = state.level;
+      document.getElementById('dash-words').innerText = `${state.wordCount + state.masteredWords.length} kata`;
+      document.getElementById('dash-targets').innerText = state.targets.join(', ');
+      document.getElementById('stat-mastered').innerText = `${state.masteredWords.length} Kata`;
+
+      loadCard();
+      renderStory();
+    }
+
+    function switchTab(tabName, navEl) {
+      ['home', 'cards', 'read', 'profile'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      if (navEl) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        navEl.classList.add('active');
+      }
+    }
+
+    // --- FLASHCARDS & AUDIO ---
+    function loadCard() {
+      currentCard = flashcardsDB[state.cardIndex % flashcardsDB.length];
+      document.getElementById('fc-word').innerText = currentCard.word;
+      document.getElementById('fc-phonetic').innerText = currentCard.phonetic;
+      document.getElementById('fc-meaning').innerText = currentCard.meaning;
+      document.getElementById('fc-example').innerText = `"${currentCard.example}"`;
+      document.getElementById('fc-back').classList.add('hidden');
+    }
+
+    function flipCard() {
+      document.getElementById('fc-back').classList.toggle('hidden');
+    }
+
+    function nextCard(mastered) {
+      if (mastered && !state.masteredWords.includes(currentCard.word)) {
+        state.masteredWords.push(currentCard.word);
+        document.getElementById('stat-mastered').innerText = `${state.masteredWords.length} Kata`;
+        document.getElementById('dash-words').innerText = `${state.wordCount + state.masteredWords.length} kata`;
+      }
+      state.cardIndex++;
+      saveState();
+      loadCard();
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 0.9;
+        window.speechSynthesis.speak(utter);
+      } else {
+        alert('Browser Anda tidak mendukung fitur suara offline.');
+      }
+    }
+
+    // --- BUKU ADAPTASI (INTERACTIVE READER) ---
+    function renderStory() {
+      const container = document.getElementById('story-container');
+      container.innerHTML = '';
+      storyText.split(' ').forEach(rawWord => {
+        const clean = rawWord.toLowerCase().replace(/[^a-z]/g, '');
+        const span = document.createElement('span');
+        span.className = 'word-span';
+        span.innerText = rawWord + ' ';
+        span.onclick = () => {
+          document.getElementById('word-popup').classList.remove('hidden');
+          document.getElementById('pop-en').innerText = rawWord.replace(/[^a-zA-Z]/g, '');
+          document.getElementById('pop-id').innerText = dictionary[clean] || '(Ketuk tombol suara untuk mendengar pelafalan)';
+          speakWord(clean);
+        };
+        container.appendChild(span);
+      });
+    }
+
+    // --- BACKUP & RESET ---
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'backup-belajar-inggris.json';
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          state = JSON.parse(e.target.result);
+          saveState();
+          alert('Data berhasil dipulihkan!');
+          location.reload();
+        } catch {
+          alert('File backup tidak valid.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (confirm('Yakin ingin mengulang tes dari awal?')) {
+        localStorage.removeItem('ewa_personal_state');
+        location.reload();
+      }
+    }
+  </script>
+</body>
+              </html><!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0095ff" />
+  <title>EWA Personal - Belajar Bahasa Inggris</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --primary: #0095ff;
+      --primary-dark: #0077cc;
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: 80px; }
+
+    /* Header */
+    .header { background: var(--primary); color: white; padding: 16px 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 12px rgba(0,149,255,0.2); }
+    .header h1 { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+    .header p { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+
+    .container { padding: 20px; }
+    .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+    .title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .subtitle { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+    /* Buttons */
+    .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+    .btn-sm { padding: 8px 14px; font-size: 13px; width: auto; border-radius: 8px; }
+    .btn-success { background: var(--success); }
+
+    /* Onboarding Quiz */
+    .option-btn { width: 100%; text-align: left; background: #f8fafc; border: 2px solid var(--border); padding: 14px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.15s; }
+    .option-btn:hover, .option-btn.selected { border-color: var(--primary); background: #eff6ff; color: var(--primary-dark); }
+
+    /* Result Box */
+    .word-count-box { background: #f1f5f9; border-radius: 14px; padding: 20px; text-align: center; margin: 16px 0; }
+    .word-count-box h2 { font-size: 34px; font-weight: 800; color: var(--text); }
+    .level-bar { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 8px; position: relative; }
+    .level-bar::before { content: ""; position: absolute; top: 10px; left: 10px; right: 10px; height: 6px; background: #e2e8f0; z-index: 1; border-radius: 4px; }
+    .level-dot { width: 24px; height: 24px; border-radius: 50%; background: #cbd5e1; z-index: 2; border: 4px solid white; box-shadow: 0 0 0 2px #cbd5e1; }
+    .level-dot.active { background: var(--primary); box-shadow: 0 0 0 2px var(--primary); transform: scale(1.15); }
+    .level-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); text-align: center; margin-bottom: 16px; }
+
+    /* Chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip { padding: 8px 14px; border-radius: 20px; background: #f1f5f9; font-size: 13px; cursor: pointer; border: 1px solid var(--border); }
+    .chip.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 600; }
+
+    /* Bottom Nav */
+    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; border-top: 1px solid var(--border); padding: 8px 0; z-index: 20; }
+    .nav-item { flex: 1; text-align: center; font-size: 11px; color: var(--muted); cursor: pointer; padding: 4px; }
+    .nav-item.active { color: var(--primary); font-weight: 700; }
+    .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+    /* Flashcards */
+    .flashcard { min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer; background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border: 2px solid #bae6fd; }
+    .fc-word { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin-bottom: 8px; }
+    .fc-phonetic { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+    .fc-meaning { font-size: 20px; font-weight: 700; color: var(--success); margin-top: 10px; }
+    .fc-example { font-size: 14px; color: var(--text); font-style: italic; margin-top: 8px; }
+
+    /* Interactive Reader */
+    .word-span { cursor: pointer; padding: 2px 3px; border-radius: 4px; transition: 0.15s; display: inline-block; }
+    .word-span:hover { background: #fef08a; }
+    .translation-popup { background: #1e293b; color: white; padding: 12px 16px; border-radius: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Stats */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-box { background: #f8fafc; padding: 14px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--primary); }
+    .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>ewa personal</h1>
+    <p id="header-status">Mode Belajar Pribadi • Siap Offline</p>
+  </div>
+
+  <!-- SECTION 1: ONBOARDING / TES KOSAKATA -->
+  <div id="view-onboarding" class="container">
+    <div id="step-quiz" class="card">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span style="font-size:12px; font-weight:700; color:var(--primary);">TES KOSAKATA</span>
+        <span id="quiz-progress" style="font-size:12px; color:var(--muted);">1 / 10</span>
+      </div>
+      <div class="title" id="quiz-question">Apa arti kata "Accurate"?</div>
+      <div id="quiz-options"></div>
+    </div>
+
+    <div id="step-result" class="hidden">
+      <div class="card">
+        <div style="text-align:center;" class="subtitle">Hasil tes kata:</div>
+        <div class="word-count-box">
+          <h2 id="res-word-count">4233 kata</h2>
+        </div>
+
+        <div class="level-bar">
+          <div class="level-dot" id="dot-1"></div>
+          <div class="level-dot" id="dot-2"></div>
+          <div class="level-dot" id="dot-3"></div>
+          <div class="level-dot" id="dot-4"></div>
+          <div class="level-dot" id="dot-5"></div>
+        </div>
+        <div class="level-labels">
+          <span>100<br>Beginner</span>
+          <span>1.000<br>Elementary</span>
+          <span>2.500<br>Intermed.</span>
+          <span>5.000<br>Upper-Int</span>
+          <span>10.000<br>Advanced</span>
+        </div>
+
+        <div style="background:#f8fafc; padding:14px; border-radius:12px; margin-bottom:16px;">
+          <div class="title" style="font-size:16px;">Perkiraan level kamu: <span id="res-level" style="color:var(--primary);">Intermediate</span></div>
+          <p class="subtitle" id="res-desc">Di level berikutnya, kamu akan bisa mengekspresikan pendapatmu dengan lebih jelas dan mengikuti percakapan berbagai topik.</p>
+        </div>
+
+        <div class="title" style="font-size:15px;">Pilih Target Belajar:</div>
+        <div class="chips" id="target-chips">
+          <div class="chip active" onclick="toggleChip(this)">Lancar bicara</div>
+          <div class="chip" onclick="toggleChip(this)">Nonton film tanpa subtitle</div>
+          <div class="chip active" onclick="toggleChip(this)">Membaca buku Inggris</div>
+          <div class="chip" onclick="toggleChip(this)">Pede dengan penutur asli</div>
+        </div>
+
+        <div class="title" style="font-size:15px; margin-top:16px;">Preferensi Metode:</div>
+        <div class="chips" id="method-chips">
+          <div class="chip active" onclick="toggleChip(this)">Hafalan kata</div>
+          <div class="chip active" onclick="toggleChip(this)">Membaca cerita</div>
+          <div class="chip" onclick="toggleChip(this)">Percakapan & Idiom</div>
+        </div>
+
+        <button class="btn" style="margin-top:20px;" onclick="finishOnboarding()">Mulai Program Belajar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: MAIN APP -->
+  <div id="view-app" class="container hidden">
+    
+    <!-- TAB 1: DASHBOARD -->
+    <div id="tab-home">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="subtitle">Level Saat Ini</div>
+            <div class="title" id="dash-level" style="color:var(--primary); font-size:20px;">Intermediate</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="subtitle">Estimasi Kosakata</div>
+            <div class="title" id="dash-words">4.233 kata</div>
+          </div>
+        </div>
+        <hr style="border:none; border-top:1px solid var(--border); margin:12px 0;">
+        <div class="subtitle"><strong>Target:</strong> <span id="dash-targets">-</span></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="stat-mastered">0</div>
+          <div class="stat-lbl">Kata Baru Dihafal</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-streak">1 Hari</div>
+          <div class="stat-lbl">Runtunan Belajar</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Isi Paket Belajar Harian (10-15 Menit)</div>
+        <p class="subtitle" style="margin-bottom:12px;">Gunakan metode <strong>Edutainment & Shadow Learning</strong>: dengarkan audio, baca konteks, dan hafalkan tanpa bosan.</p>
+        <button class="btn" onclick="switchTab('cards')">Mulai Hafalan Kata Hari Ini</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: FLASHCARDS -->
+    <div id="tab-cards" class="hidden">
+      <div class="card flashcard" onclick="flipCard()">
+        <span style="font-size:11px; color:var(--muted); margin-bottom:10px;">Ketuk kartu untuk melihat arti</span>
+        <div class="fc-word" id="fc-word">Reluctant</div>
+        <div class="fc-phonetic" id="fc-phonetic">/rɪˈlʌktənt/</div>
+        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); speakWord(currentCard.word)">🔊 Dengarkan Audio</button>
+        
+        <div id="fc-back" class="hidden">
+          <div class="fc-meaning" id="fc-meaning">Enggan / Ragu-ragu</div>
+          <div class="fc-example" id="fc-example">"She was reluctant to admit she was wrong."</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-outline" onclick="nextCard(false)">Belum Hafal</button>
+        <button class="btn btn-success" onclick="nextCard(true)">✓ Sudah Hafal</button>
+      </div>
+    </div>
+
+    <!-- TAB 3: BUKU ADAPTASI (SHADOW READING) -->
+    <div id="tab-read" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div class="title" style="margin:0;">Buku Adaptasi: The Coffee Shop</div>
+          <button class="btn btn-sm" onclick="speakWord(storyText)">🔊 Baca Semua</button>
+        </div>
+        <p class="subtitle" style="margin-bottom:12px;">Klik kata mana saja di bawah untuk mendengar cara baca dan melihat artinya:</p>
+        
+        <div id="story-container" style="font-size:17px; line-height:1.8; background:#f8fafc; padding:14px; border-radius:12px;"></div>
+
+        <div id="word-popup" class="translation-popup hidden">
+          <div>
+            <div style="font-weight:700; font-size:16px;" id="pop-en">Word</div>
+            <div style="font-size:13px; color:#94a3b8;" id="pop-id">Arti kata</div>
+          </div>
+          <button class="btn btn-sm" onclick="speakWord(document.getElementById('pop-en').innerText)">🔊 Suara</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: PROFIL & BACKUP OFFLINE -->
+    <div id="tab-profile" class="hidden">
+      <div class="card">
+        <div class="title">Pengaturan & Backup Data</div>
+        <p class="subtitle" style="margin-bottom:16px;">Semua data tersimpan otomatis di memori perangkat Anda (Offline). Anda bisa mencadangkan progres ke file kapan saja.</p>
+        
+        <button class="btn btn-outline" style="margin-bottom:10px;" onclick="exportData()">⬇️ Unduh Backup Progres (JSON)</button>
+        <button class="btn btn-outline" style="margin-bottom:20px;" onclick="document.getElementById('import-file').click()">⬆️ Pulihkan Data dari File</button>
+        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)" />
+        
+        <button class="btn" style="background:#ef4444;" onclick="resetAll()">Ulangi Tes Level / Reset Data</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div id="bottom-nav" class="nav hidden">
+    <div class="nav-item active" onclick="switchTab('home', this)"><span class="nav-icon">🏠</span>Beranda</div>
+    <div class="nav-item" onclick="switchTab('cards', this)"><span class="nav-icon">🗂️</span>Kosakata</div>
+    <div class="nav-item" onclick="switchTab('read', this)"><span class="nav-icon">📖</span>Bacaan</div>
+    <div class="nav-item" onclick="switchTab('profile', this)"><span class="nav-icon">⚙️</span>Data</div>
+  </div>
+
+  <script>
+    // --- DATABASE MATERI BAWAAN (OFFLINE READY) ---
+    const quizData = [
+      { q: 'Apa arti kata "Determine"?', opts: ['Menentukan', 'Menghancurkan', 'Melupakan', 'Menyembunyikan'], ans: 0, pts: 400 },
+      { q: 'Apa arti kata "Substantial"?', opts: ['Sangat kecil', 'Besar / Signifikan', 'Sementara', 'Berbahaya'], ans: 1, pts: 600 },
+      { q: 'Apa arti kata "Inevitable"?', opts: ['Tidak terelakkan', 'Tidak terlihat', 'Sangat mudah', 'Membosankan'], ans: 0, pts: 750 },
+      { q: 'Apa arti kata "Ambiguous"?', opts: ['Sangat jelas', 'Bermakna ganda / Ragu', 'Ambisius', 'Ramah'], ans: 1, pts: 850 },
+      { q: 'Apa arti kata "Meticulous"?', opts: ['Ceroboh', 'Sangat teliti', 'Cepat marah', 'Pemalu'], ans: 1, pts: 950 },
+      { q: 'Apa arti kata "Ephemeral"?', opts: ['Abadi', 'Berlangsung singkat', 'Sangat berat', 'Beracun'], ans: 1, pts: 1200 }
+    ];
+
+    const flashcardsDB = [
+      { word: "Reluctant", phonetic: "/rɪˈlʌktənt/", meaning: "Enggan / Ragu-ragu", example: "He was reluctant to ask for help." },
+      { word: "Flawless", phonetic: "/ˈflɔːləs/", meaning: "Sempurna tanpa cacat", example: "Her English pronunciation is flawless." },
+      { word: "Overwhelm", phonetic: "/ˌoʊvərˈwelm/", meaning: "Kewalahan / Meluap", example: "Don't let the workload overwhelm you." },
+      { word: "Genuine", phonetic: "/ˈdʒenjuɪn/", meaning: "Asli / Tulus", example: "She showed genuine interest in learning." },
+      { word: "Postpone", phonetic: "/poʊˈspoʊn/", meaning: "Menunda", example: "We had to postpone the meeting until tomorrow." },
+      { word: "Breakthrough", phonetic: "/ˈbreɪkθruː/", meaning: "Terobosan besar", example: "Scientists made a major breakthrough." }
+    ];
+
+    const storyText = "Yesterday morning, I decided to visit a quiet coffee shop downtown. Although the weather was gloomy, the aroma of freshly roasted beans instantly lifted my mood.";
+    const dictionary = {
+      "yesterday": "kemarin", "morning": "pagi", "decided": "memutuskan", "visit": "mengunjungi",
+      "quiet": "tenang / sepi", "coffee": "kopi", "shop": "kedai / toko", "downtown": "pusat kota",
+      "although": "meskipun", "weather": "cuaca", "gloomy": "mendung / suram", "aroma": "aroma / wangi",
+      "freshly": "baru saja", "roasted": "dipanggang", "beans": "biji", "instantly": "seketika",
+      "lifted": "mengangkat / memperbaiki", "mood": "suasana hati"
+    };
+
+    // --- STATE APLIKASI ---
+    let state = JSON.parse(localStorage.getItem('ewa_personal_state')) || {
+      onboarded: false,
+      wordCount: 0,
+      level: 'Beginner',
+      targets: [],
+      masteredWords: [],
+      cardIndex: 0
+    };
+
+    let currentQuizIdx = 0;
+    let quizScore = 500; // Base score
+    let currentCard = flashcardsDB[0];
+
+    // --- INISIALISASI ---
+    window.onload = () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+      if (state.onboarded) {
+        showMainApp();
+      } else {
+        renderQuiz();
+      }
+    };
+
+    function saveState() {
+      localStorage.setItem('ewa_personal_state', JSON.stringify(state));
+    }
+
+    // --- LOGIKA ONBOARDING & TES ---
+    function renderQuiz() {
+      const item = quizData[currentQuizIdx];
+      document.getElementById('quiz-progress').innerText = `${currentQuizIdx + 1} / ${quizData.length}`;
+      document.getElementById('quiz-question').innerText = item.q;
+      const optContainer = document.getElementById('quiz-options');
+      optContainer.innerHTML = '';
+
+      item.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(idx === item.ans, item.pts);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(isCorrect, pts) {
+      if (isCorrect) quizScore += pts;
+      currentQuizIdx++;
+      if (currentQuizIdx < quizData.length) {
+        renderQuiz();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      document.getElementById('step-quiz').classList.add('hidden');
+      document.getElementById('step-result').classList.remove('hidden');
+
+      state.wordCount = quizScore;
+      let dotIdx = 1;
+      if (quizScore >= 4500) { state.level = 'Advanced'; dotIdx = 5; }
+      else if (quizScore >= 3500) { state.level = 'Upper Intermediate'; dotIdx = 4; }
+      else if (quizScore >= 2000) { state.level = 'Intermediate'; dotIdx = 3; }
+      else if (quizScore >= 1000) { state.level = 'Elementary'; dotIdx = 2; }
+      else { state.level = 'Beginner'; dotIdx = 1; }
+
+      document.getElementById('res-word-count').innerText = `${state.wordCount} kata`;
+      document.getElementById('res-level').innerText = state.level;
+      for (let i = 1; i <= dotIdx; i++) {
+        document.getElementById(`dot-${i}`).classList.add('active');
+      }
+    }
+
+    function toggleChip(el) {
+      el.classList.toggle('active');
+    }
+
+    function finishOnboarding() {
+      const activeTargets = Array.from(document.querySelectorAll('#target-chips .chip.active')).map(c => c.innerText);
+      state.targets = activeTargets.length ? activeTargets : ['Lancar membaca & bicara'];
+      state.onboarded = true;
+      saveState();
+      showMainApp();
+    }
+
+    // --- LOGIKA APLIKASI UTAMA ---
+    function showMainApp() {
+      document.getElementById('view-onboarding').classList.add('hidden');
+      document.getElementById('view-app').classList.remove('hidden');
+      document.getElementById('bottom-nav').classList.remove('hidden');
+
+      document.getElementById('dash-level').innerText = state.level;
+      document.getElementById('dash-words').innerText = `${state.wordCount + state.masteredWords.length} kata`;
+      document.getElementById('dash-targets').innerText = state.targets.join(', ');
+      document.getElementById('stat-mastered').innerText = `${state.masteredWords.length} Kata`;
+
+      loadCard();
+      renderStory();
+    }
+
+    function switchTab(tabName, navEl) {
+      ['home', 'cards', 'read', 'profile'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      if (navEl) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        navEl.classList.add('active');
+      }
+    }
+
+    // --- FLASHCARDS & AUDIO ---
+    function loadCard() {
+      currentCard = flashcardsDB[state.cardIndex % flashcardsDB.length];
+      document.getElementById('fc-word').innerText = currentCard.word;
+      document.getElementById('fc-phonetic').innerText = currentCard.phonetic;
+      document.getElementById('fc-meaning').innerText = currentCard.meaning;
+      document.getElementById('fc-example').innerText = `"${currentCard.example}"`;
+      document.getElementById('fc-back').classList.add('hidden');
+    }
+
+    function flipCard() {
+      document.getElementById('fc-back').classList.toggle('hidden');
+    }
+
+    function nextCard(mastered) {
+      if (mastered && !state.masteredWords.includes(currentCard.word)) {
+        state.masteredWords.push(currentCard.word);
+        document.getElementById('stat-mastered').innerText = `${state.masteredWords.length} Kata`;
+        document.getElementById('dash-words').innerText = `${state.wordCount + state.masteredWords.length} kata`;
+      }
+      state.cardIndex++;
+      saveState();
+      loadCard();
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 0.9;
+        window.speechSynthesis.speak(utter);
+      } else {
+        alert('Browser Anda tidak mendukung fitur suara offline.');
+      }
+    }
+
+    // --- BUKU ADAPTASI (INTERACTIVE READER) ---
+    function renderStory() {
+      const container = document.getElementById('story-container');
+      container.innerHTML = '';
+      storyText.split(' ').forEach(rawWord => {
+        const clean = rawWord.toLowerCase().replace(/[^a-z]/g, '');
+        const span = document.createElement('span');
+        span.className = 'word-span';
+        span.innerText = rawWord + ' ';
+        span.onclick = () => {
+          document.getElementById('word-popup').classList.remove('hidden');
+          document.getElementById('pop-en').innerText = rawWord.replace(/[^a-zA-Z]/g, '');
+          document.getElementById('pop-id').innerText = dictionary[clean] || '(Ketuk tombol suara untuk mendengar pelafalan)';
+          speakWord(clean);
+        };
+        container.appendChild(span);
+      });
+    }
+
+    // --- BACKUP & RESET ---
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'backup-belajar-inggris.json';
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          state = JSON.parse(e.target.result);
+          saveState();
+          alert('Data berhasil dipulihkan!');
+          location.reload();
+        } catch {
+          alert('File backup tidak valid.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      if (confirm('Yakin ingin mengulang tes dari awal?')) {
+        localStorage.removeItem('ewa_personal_state');
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

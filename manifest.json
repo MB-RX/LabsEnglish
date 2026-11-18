@@ -1,0 +1,15 @@
+{
+  "name": "EWA Personal - Belajar Bahasa Inggris",
+  "short_name": "EWA Personal",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0095ff",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3898/3898082.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
